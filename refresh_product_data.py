@@ -83,6 +83,12 @@ def derive_pack_size(r):
         return f'{int(g)} Gal'
     return 'Other'
 
+# Override formula names where NetSuite name differs from desired display name
+FORMULA_NAME_OVERRIDES = {
+    'CC1047': 'Sodium Hypochlorite 12.5%',
+    'CC1054': 'Acetic Acid 70%',
+}
+
 def process_data(raw_data):
     compact = []
     for r in raw_data:
@@ -90,7 +96,8 @@ def process_data(raw_data):
         nw = float(r.get('net_wt') or 0); qty = float(r.get('qty') or 0)
         is_bulk = r.get('is_bulk') == 'T'
         true_lbs = qty if is_bulk else (qty * nw if nw > 0 else 0)
-        compact.append({'mid':r['master_id'],'fc':r['formula_code'],'fn':r['formula_name'],
+        fn = FORMULA_NAME_OVERRIDES.get(r['formula_code'], r['formula_name'])
+        compact.append({'mid':r['master_id'],'fc':r['formula_code'],'fn':fn,
             'cn':r.get('customer_name') or 'Unknown','cnum':r.get('customer_num') or '',
             'it':r.get('item_name') or '','ps':ps,'nw':nw,'qty':qty,
             'lbs':round(true_lbs,1),'rev':float(r.get('revenue') or 0),'dt':r.get('order_date') or ''})
