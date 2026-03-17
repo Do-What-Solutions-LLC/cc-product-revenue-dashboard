@@ -213,8 +213,9 @@ function showSC(type){
   const ctx=document.getElementById('statChart').getContext('2d');let cfg;
   if(type==='revenue'){
     document.getElementById('statModalTitle').textContent='Revenue Trend'+(searchTerm?'':' — Top 20 Products');
+    const visibleCodes=new Set(FC.map(f=>f.formula_code));
     const bM={};const mP={};
-    FD.forEach(r=>{
+    FD.filter(r=>visibleCodes.has(r.fc)).forEach(r=>{
       const m=r.dt.slice(0,7);bM[m]=(bM[m]||0)+r.rev;
       if(!mP[m])mP[m]={};
       const k=r.fc;if(!mP[m][k])mP[m][k]={code:r.fc,name:r.fn,rev:0};
@@ -240,10 +241,30 @@ function showSC(type){
   }else if(type==='lbs'){
     document.getElementById('statModalTitle').textContent='Lbs Sold by Product';
     const s=[...FC].sort((a,b)=>b.total_lbs-a.total_lbs).slice(0,20);
-    cfg={type:'bar',data:{labels:s.map(f=>f.formula_code),datasets:[{data:s.map(f=>f.total_lbs),backgroundColor:'#0082CB',borderRadius:6,barPercentage:.75}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fN(c.raw)+' lbs'}}},scales:{y:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M lbs':v>=1e3?(v/1e3).toFixed(0)+'K lbs':v+' lbs'},grid:{color:'#f0f0f0'}},x:{ticks:{maxRotation:45,minRotation:45,font:{size:10}},grid:{display:false}}}}};
+    // Build per-product customer revenue breakdown for tooltip
+    const lbsCodes=new Set(s.map(f=>f.formula_code));
+    const prodCustRev={};FD.filter(r=>lbsCodes.has(r.fc)).forEach(r=>{
+      if(!prodCustRev[r.fc])prodCustRev[r.fc]={};
+      prodCustRev[r.fc][r.cn]=(prodCustRev[r.fc][r.cn]||0)+r.rev;
+    });
+    cfg={type:'bar',data:{labels:s.map(f=>f.formula_code),datasets:[{data:s.map(f=>f.total_lbs),backgroundColor:'#0082CB',borderRadius:6,barPercentage:.75}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'rgba(31,41,55,.95)',titleFont:{family:'DM Sans',size:13,weight:700},bodyFont:{family:'Space Mono',size:10},padding:12,cornerRadius:8,boxPadding:4,
+      callbacks:{
+        label:c=>fN(c.raw)+' lbs',
+        afterBody:c=>{
+          const fc=s[c[0].dataIndex].formula_code;const custs=prodCustRev[fc]||{};
+          const sorted=Object.entries(custs).sort((a,b)=>b[1]-a[1]);
+          const total=sorted.reduce((s,e)=>s+e[1],0);const lines=['','Revenue by Customer:'];
+          const show=sorted.slice(0,6);
+          show.forEach(([name,rev])=>{const pct=((rev/total)*100).toFixed(1);const short=name.length>20?name.slice(0,18)+'..':name;lines.push(short+'  $'+rev.toLocaleString('en-US',{maximumFractionDigits:0})+' ('+pct+'%)')});
+          if(sorted.length>6){const rest=sorted.slice(6).reduce((s,e)=>s+e[1],0);const rPct=((rest/total)*100).toFixed(1);lines.push('+'+(sorted.length-6)+' others  $'+rest.toLocaleString('en-US',{maximumFractionDigits:0})+' ('+rPct+'%)')}
+          return lines;
+        }
+      }
+    }},scales:{y:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M lbs':v>=1e3?(v/1e3).toFixed(0)+'K lbs':v+' lbs'},grid:{color:'#f0f0f0'}},x:{ticks:{maxRotation:45,minRotation:45,font:{size:10}},grid:{display:false}}}}};
   }else if(type==='custs'){
     document.getElementById('statModalTitle').textContent='Top 20 Customers by Revenue';
-    const cm={};FD.forEach(r=>{cm[r.cn]=(cm[r.cn]||0)+r.rev});const s=Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    const visCodes2=new Set(FC.map(f=>f.formula_code));const cm={};FD.filter(r=>visCodes2.has(r.fc)).forEach(r=>{cm[r.cn]=(cm[r.cn]||0)+r.rev});const s=Object.entries(cm).sort((a,b)=>b[1]-a[1]).slice(0,20);
     cfg={type:'bar',data:{labels:s.map(e=>e[0].length>22?e[0].slice(0,20)+'...':e[0]),datasets:[{data:s.map(e=>e[1]),backgroundColor:'#0082CB',borderRadius:6,barPercentage:.75}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.raw.toLocaleString('en-US',{maximumFractionDigits:0})}}},scales:{y:{ticks:{callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v)},grid:{color:'#f0f0f0'}},x:{ticks:{maxRotation:45,minRotation:45,font:{size:10}},grid:{display:false}}}}};
   }else{
     document.getElementById('statModalTitle').textContent='Top 20 Products by Revenue';
