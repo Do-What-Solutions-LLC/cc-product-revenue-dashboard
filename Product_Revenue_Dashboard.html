@@ -103,13 +103,17 @@
     <button class="preset-btn" onclick="setPreset('6m',this)">Last 6 Months</button>
     <button class="preset-btn" onclick="setPreset('all',this)">All Time</button>
   </div>
-  <div class="control-group" style="margin-left:auto;position:relative">
-    <input type="text" id="searchInput" placeholder="Search products..." oninput="onSearch()" style="padding:6px 28px 6px 10px;border:1px solid #ddd;border-radius:4px;font-size:13px;width:200px">
-    <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#999;padding:0;line-height:1">&times;</button>
-  </div>
+
 </div>
-<div id="searchInfo" style="padding:4px 40px;font-size:12px"></div>
-<div style="padding:6px 40px;background:#FFF8F0;border-bottom:1px solid #F5E0CC;font-size:11px;color:#8B6914">
+<div style="padding:16px 40px 12px;background:white;border-bottom:1px solid var(--cc-gray);display:flex;flex-direction:column;align-items:center">
+  <div style="position:relative;width:100%;max-width:600px">
+    <svg style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#9CA3AF" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search all products by code or name..." oninput="onSearch()" style="width:100%;padding:14px 44px 14px 46px;border:2px solid var(--cc-gray);border-radius:28px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s,box-shadow .2s" onfocus="this.style.borderColor='var(--cc-blue)';this.style.boxShadow='0 4px 16px rgba(0,130,203,0.12)'" onblur="this.style.borderColor='var(--cc-gray)';this.style.boxShadow='none'">
+    <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:22px;color:#9CA3AF;padding:4px;line-height:1">&times;</button>
+  </div>
+  <div id="searchInfo" style="margin-top:6px;font-size:13px;font-weight:500;min-height:20px"></div>
+</div>
+<div id="top20Note" style="padding:6px 40px;background:#FFF8F0;border-bottom:1px solid #F5E0CC;font-size:11px;color:#8B6914">
   <strong>Note:</strong> Revenue and lbs figures reflect only the top 20 master formulas listed below. Sales from other products are not included in these totals.
 </div>
 <div class="stats-bar" id="statsBar"></div>
@@ -180,7 +184,7 @@ function renderStats(formulas,filtered){
   const tR=formulas.reduce((s,f)=>s+f.total_revenue,0),tL=formulas.reduce((s,f)=>s+f.total_lbs,0);
   const aC=new Set();filtered.forEach(r=>aC.add(r.cn));
   document.getElementById('statsBar').innerHTML=`
-    <div class="stat-card" onclick="showSC('revenue')"><div class="stat-label">Total Revenue (Top 20)</div><div class="stat-value">${fC(tR)}</div><div class="stat-hint">Click for trend</div></div>
+    <div class="stat-card" onclick="showSC('revenue')"><div class="stat-label">Total Revenue${searchTerm?'':' (Top 20)'}</div><div class="stat-value">${fC(tR)}</div><div class="stat-hint">Click for trend</div></div>
     <div class="stat-card" onclick="showSC('lbs')"><div class="stat-label">Total Lbs Sold</div><div class="stat-value orange">${fN(tL)}</div><div class="stat-hint">Click for breakdown</div></div>
     <div class="stat-card" onclick="showSC('custs')"><div class="stat-label">Unique Customers</div><div class="stat-value">${aC.size}</div><div class="stat-hint">Click for top customers</div></div>
     <div class="stat-card" onclick="showSC('avg')"><div class="stat-label">Avg Revenue / Product</div><div class="stat-value orange">${fC(tR/formulas.length)}</div><div class="stat-hint">Click for ranking</div></div>`;
@@ -190,7 +194,7 @@ function showSC(type){
   document.getElementById('statModalOverlay').classList.add('active');
   const ctx=document.getElementById('statChart').getContext('2d');let cfg;
   if(type==='revenue'){
-    document.getElementById('statModalTitle').textContent='Revenue Trend — Top 20 Products';
+    document.getElementById('statModalTitle').textContent='Revenue Trend'+(searchTerm?'':' — Top 20 Products');
     const bM={};FD.forEach(r=>{const m=r.dt.slice(0,7);bM[m]=(bM[m]||0)+r.rev});const ms=Object.keys(bM).sort();
     const vals=ms.map(m=>bM[m]);const maxVal=Math.max(...vals);const maxIdx=vals.indexOf(maxVal);
     const pointBg=vals.map((_,i)=>i===maxIdx?'#F37021':'#0082CB');
@@ -318,10 +322,12 @@ function refreshDashboard(){
   }else{
     // Default: show top 20
     FC=allF.filter(f=>TOP20.includes(f.master_id)).sort((a,b)=>b.total_revenue-a.total_revenue).slice(0,20);
-    // If a top20 product had no data in this range, FC could be <20
     document.getElementById('searchInfo').textContent='';
   }
-  
+
+  // Show/hide top 20 note based on search state
+  document.getElementById('top20Note').style.display=searchTerm?'none':'block';
+
   // Stats reflect only what's displayed
   const displayedIds=new Set(FC.map(f=>f.master_id));
   const displayedRecords=FD.filter(r=>displayedIds.has(r.mid));
