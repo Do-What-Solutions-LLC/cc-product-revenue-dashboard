@@ -103,8 +103,12 @@
     <button class="preset-btn" onclick="setPreset('6m',this)">Last 6 Months</button>
     <button class="preset-btn" onclick="setPreset('all',this)">All Time</button>
   </div>
-  
+  <div class="control-group" style="margin-left:auto;position:relative">
+    <input type="text" id="searchInput" placeholder="Search products..." oninput="onSearch()" style="padding:6px 28px 6px 10px;border:1px solid #ddd;border-radius:4px;font-size:13px;width:200px">
+    <button id="clearSearch" onclick="clearSearch()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#999;padding:0;line-height:1">&times;</button>
+  </div>
 </div>
+<div id="searchInfo" style="padding:4px 40px;font-size:12px"></div>
 <div style="padding:6px 40px;background:#FFF8F0;border-bottom:1px solid #F5E0CC;font-size:11px;color:#8B6914">
   <strong>Note:</strong> Revenue and lbs figures reflect only the top 20 master formulas listed below. Sales from other products are not included in these totals.
 </div>
