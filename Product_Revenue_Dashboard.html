@@ -9,6 +9,7 @@
 <style>
 :root{--cc-blue:#0082CB;--cc-blue-dark:#006BA7;--cc-blue-light:#E8F4FB;--cc-orange:#F37021;--cc-orange-dark:#D45E18;--cc-gray:#E5E6E6;--cc-bg:#F5F7FA;--cc-text:#1F2937;--cc-text-light:#6B7280;--cc-radius:16px;--cc-shadow:0 4px 24px rgba(0,0,0,0.08);--cc-shadow-hover:0 8px 32px rgba(0,130,203,0.15)}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--cc-bg);color:var(--cc-text);min-height:100vh}
+#authGate input::placeholder{color:rgba(255,255,255,.45)}
 .header{background:linear-gradient(135deg,var(--cc-blue) 0%,var(--cc-blue-dark) 100%);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .header-left{display:flex;align-items:center;gap:16px}.header-logo{height:42px}
 .header h1{color:white;font-size:20px;font-weight:700}.header-sub{color:rgba(255,255,255,.7);font-size:12px}
@@ -130,12 +131,16 @@
     <div id="setupError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
     <div style="text-align:center;color:white;font-size:16px;font-weight:600;margin-bottom:24px" id="setupTitle">Set Your Password</div>
     <div style="margin-bottom:16px">
+      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Account</label>
+      <input id="setupEmail" type="email" readonly style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;cursor:default">
+    </div>
+    <div style="margin-bottom:16px">
       <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">New Password</label>
-      <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s;caret-color:white" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
     </div>
     <div style="margin-bottom:24px">
       <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Confirm Password</label>
-      <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doSetPassword()">
+      <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s;caret-color:white" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doSetPassword()">
     </div>
     <button onclick="doSetPassword()" id="setupBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Set Password</button>
   </div>
@@ -612,6 +617,8 @@ function handleTokenFlow(){
     document.getElementById('loginCard').style.display='none';
     document.getElementById('setupCard').style.display='block';
     document.getElementById('setupTitle').textContent=isInvite?'Set Your Password':'Reset Your Password';
+    // Extract email from JWT token payload
+    try{const payload=JSON.parse(atob(token.split('.')[1]));document.getElementById('setupEmail').value=payload.email||''}catch(e){}
     const gate=document.getElementById('authGate');
     gate.style.display='flex';
     document.getElementById('appContent').style.display='none';
