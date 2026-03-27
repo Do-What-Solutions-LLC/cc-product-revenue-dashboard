@@ -111,13 +111,9 @@
 </head>
 <body>
 <div id="authGate" style="display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--cc-blue) 0%,var(--cc-blue-dark) 100%);flex-direction:column;gap:24px;font-family:'DM Sans',sans-serif">
-  <div style="display:flex;align-items:center;gap:16px">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="height:56px;width:56px"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="6"/><circle cx="100" cy="60" r="12" fill="#F37021"/><circle cx="65" cy="120" r="12" fill="#F37021"/><circle cx="135" cy="120" r="12" fill="#F37021"/><line x1="100" y1="60" x2="65" y2="120" stroke="rgba(255,255,255,.7)" stroke-width="3"/><line x1="100" y1="60" x2="135" y2="120" stroke="rgba(255,255,255,.7)" stroke-width="3"/><line x1="65" y1="120" x2="135" y2="120" stroke="rgba(255,255,255,.7)" stroke-width="3"/></svg>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px">
+    <img id="authLogo" style="height:56px" alt="Capacity Chemical">
     <div><div style="color:white;font-size:24px;font-weight:700;letter-spacing:-.5px">capacity chemical</div><div style="color:rgba(255,255,255,.6);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase">Product Revenue Dashboard</div></div>
-  </div>
-  <div style="background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:20px;padding:40px;text-align:center;max-width:400px;width:90%">
-    <p style="color:rgba(255,255,255,.8);font-size:14px;margin-bottom:24px">Sign in to access the dashboard</p>
-    <button onclick="netlifyIdentity.open('login')" style="padding:14px 40px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Sign In</button>
   </div>
   <p style="color:rgba(255,255,255,.4);font-size:11px">Prepared by Do What Solutions LLC</p>
 </div>
@@ -554,16 +550,20 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();docume
 function showTop20List(){document.getElementById("top20ListOverlay").classList.add("active")}
 function showHowToUse(){document.getElementById("howToUseOverlay").classList.add("active")}
 
+// Copy real logo to auth page
+(function(){const hdrLogo=document.querySelector('.header-logo');const authLogo=document.getElementById('authLogo');if(hdrLogo&&authLogo)authLogo.src=hdrLogo.src})();
+
 // Netlify Identity auth gate
 if(window.netlifyIdentity){
   const gate=document.getElementById('authGate');
   const app=document.getElementById('appContent');
   netlifyIdentity.on('init',user=>{
     if(user){gate.style.display='none';app.style.display='block'}
-    else{gate.style.display='flex';app.style.display='none'}
+    else{gate.style.display='flex';app.style.display='none';netlifyIdentity.open('login')}
   });
   netlifyIdentity.on('login',()=>{netlifyIdentity.close();gate.style.display='none';app.style.display='block';location.reload()});
-  netlifyIdentity.on('logout',()=>{gate.style.display='flex';app.style.display='none'});
+  netlifyIdentity.on('logout',()=>{gate.style.display='flex';app.style.display='none';netlifyIdentity.open('login')});
+  netlifyIdentity.on('close',()=>{if(!netlifyIdentity.currentUser())setTimeout(()=>netlifyIdentity.open('login'),300)});
 }else{
   // No Netlify Identity (local dev) — show app directly
   document.getElementById('authGate').style.display='none';
