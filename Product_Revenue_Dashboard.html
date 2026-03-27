@@ -115,30 +115,13 @@
     <img id="authLogo" style="height:64px;margin-bottom:12px" alt="Capacity Chemical">
     <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-top:4px">Product Revenue Dashboard</div>
   </div>
-  <div id="loginCard" style="background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
+  <div style="background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
     <div id="loginError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
-    <div style="margin-bottom:16px">
-      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Email</label>
-      <input id="loginEmail" type="email" placeholder="you@company.com" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
-    </div>
     <div style="margin-bottom:24px">
       <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Password</label>
-      <input id="loginPassword" type="password" placeholder="Enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doLogin()">
+      <input id="loginPassword" type="password" placeholder="Enter access code" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button onclick="doLogin()" id="loginBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Log In</button>
-  </div>
-  <div id="setupCard" style="display:none;background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
-    <div id="setupError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
-    <div style="text-align:center;color:white;font-size:16px;font-weight:600;margin-bottom:24px" id="setupTitle">Set Your Password</div>
-    <div style="margin-bottom:16px">
-      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">New Password</label>
-      <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s;caret-color:white" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
-    </div>
-    <div style="margin-bottom:24px">
-      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Confirm Password</label>
-      <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s;caret-color:white" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doSetPassword()">
-    </div>
-    <button onclick="doSetPassword()" id="setupBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Set Password</button>
   </div>
   <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:32px">Prepared by Do What Solutions LLC</p>
 </div>
@@ -578,120 +561,36 @@ function showHowToUse(){document.getElementById("howToUseOverlay").classList.add
 // Copy real logo to auth page
 (function(){const hdrLogo=document.querySelector('.header-logo');const authLogo=document.getElementById('authLogo');if(hdrLogo&&authLogo)authLogo.src=hdrLogo.src})();
 
-// GoTrue API base (Netlify Identity)
-const IDENTITY_URL='/.netlify/identity';
+// Simple password gate — shared access code
+// To change the password, update this hash. Generate with: btoa('yourpassword')
+const ACCESS_HASH='Q2FwQ2hlbTIwMjY='; // base64 of the access code
 
 function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
   const pass=document.getElementById('loginPassword').value;
   const errEl=document.getElementById('loginError');
   const btn=document.getElementById('loginBtn');
-  if(!email||!pass){errEl.textContent='Please enter email and password';errEl.style.display='block';return}
-  btn.textContent='Logging in...';btn.disabled=true;errEl.style.display='none';
-  fetch(IDENTITY_URL+'/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'grant_type=password&username='+encodeURIComponent(email)+'&password='+encodeURIComponent(pass)
-  }).then(r=>{
-    if(!r.ok)throw new Error('Invalid credentials');
-    return r.json();
-  }).then(data=>{
-    localStorage.setItem('nf_jwt',JSON.stringify(data));
+  if(!pass){errEl.textContent='Please enter the access code';errEl.style.display='block';return}
+  btn.textContent='Verifying...';btn.disabled=true;errEl.style.display='none';
+  if(btoa(pass)===ACCESS_HASH){
+    localStorage.setItem('cc_auth','1');
     document.getElementById('authGate').style.display='none';
     document.getElementById('appContent').style.display='block';
-  }).catch(e=>{
-    errEl.textContent='Invalid email or password';errEl.style.display='block';
+  }else{
+    errEl.textContent='Invalid access code';errEl.style.display='block';
     btn.textContent='Log In';btn.disabled=false;
-  });
-}
-
-// Handle invite/recovery tokens from URL hash
-function handleTokenFlow(){
-  const hash=window.location.hash;
-  if(hash.includes('invite_token=')||hash.includes('recovery_token=')){
-    const isInvite=hash.includes('invite_token=');
-    const token=hash.replace(/^#/,'').split('=').slice(1).join('=').split('&')[0];
-    // Show setup card, hide login card
-    document.getElementById('loginCard').style.display='none';
-    document.getElementById('setupCard').style.display='block';
-    document.getElementById('setupTitle').textContent=isInvite?'Set Your Password':'Reset Your Password';
-    const gate=document.getElementById('authGate');
-    gate.style.display='flex';
-    document.getElementById('appContent').style.display='none';
-    setTimeout(()=>document.getElementById('newPassword').focus(),100);
-    window._authToken=token;
-    window._authIsInvite=isInvite;
-    window.location.hash='';
-    return true;
   }
-  // Handle confirmation token (email confirm after invite accept)
-  if(hash.includes('confirmation_token=')){
-    const token=hash.replace(/^#/,'').split('=').slice(1).join('=').split('&')[0];
-    fetch(IDENTITY_URL+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token:token,type:'signup'})
-    }).then(r=>r.json()).then(()=>{
-      window.location.hash='';window.location.reload();
-    });
-    return true;
-  }
-  return false;
-}
-
-function doSetPassword(){
-  const pw=document.getElementById('newPassword').value;
-  const pw2=document.getElementById('confirmPassword').value;
-  const errEl=document.getElementById('setupError');
-  const btn=document.getElementById('setupBtn');
-  if(!pw||pw.length<6){errEl.textContent='Password must be at least 6 characters';errEl.style.display='block';return}
-  if(pw!==pw2){errEl.textContent='Passwords do not match';errEl.style.display='block';return}
-  btn.textContent='Setting up...';btn.disabled=true;errEl.style.display='none';
-  const endpoint=window._authIsInvite?'/verify':'/recover';
-  const body=window._authIsInvite?{token:window._authToken,type:'invite',password:pw}:{token:window._authToken,type:'recovery',password:pw};
-  // For invite: verify token first, then update password
-  fetch(IDENTITY_URL+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({token:window._authToken,type:window._authIsInvite?'invite':'recovery'})
-  }).then(r=>{
-    if(!r.ok)throw new Error('Invalid or expired token');
-    return r.json();
-  }).then(data=>{
-    // Now update the password using the access token from verification
-    return fetch(IDENTITY_URL+'/user',{method:'PUT',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+data.access_token},
-      body:JSON.stringify({password:pw})
-    }).then(r=>{if(!r.ok)throw new Error('Failed to set password');return data});
-  }).then(data=>{
-    // Store the JWT and show the app
-    localStorage.setItem('nf_jwt',JSON.stringify(data));
-    document.getElementById('authGate').style.display='none';
-    document.getElementById('appContent').style.display='block';
-  }).catch(e=>{
-    errEl.textContent=e.message||'Failed to set password. The link may have expired — request a new invite.';
-    errEl.style.display='block';btn.textContent='Set Password';btn.disabled=false;
-  });
 }
 
 // Check for existing session
 (function(){
   const gate=document.getElementById('authGate');
   const app=document.getElementById('appContent');
-  // Handle invite/recovery tokens first
-  if(handleTokenFlow()) return;
-  // Detect if running on Netlify (identity endpoint exists)
-  fetch(IDENTITY_URL+'/settings').then(r=>{
-    if(!r.ok)throw new Error('no identity');
-    const stored=localStorage.getItem('nf_jwt');
-    if(stored){
-      const tok=JSON.parse(stored);
-      // Check if token is still valid (not expired)
-      if(tok.access_token){
-        const payload=JSON.parse(atob(tok.access_token.split('.')[1]));
-        if(payload.exp*1000>Date.now()){gate.style.display='none';app.style.display='block';return}
-      }
-    }
-    gate.style.display='flex';app.style.display='none';
-    setTimeout(()=>document.getElementById('loginEmail').focus(),100);
-  }).catch(()=>{
-    // Not on Netlify (local dev) — show app directly
+  if(localStorage.getItem('cc_auth')==='1'){
     gate.style.display='none';app.style.display='block';
-  });
+  }else{
+    gate.style.display='flex';app.style.display='none';
+    setTimeout(()=>document.getElementById('loginPassword').focus(),100);
+  }
 })();
 </script>
 </body></html>
