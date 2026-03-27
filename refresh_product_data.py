@@ -6,6 +6,16 @@ Outputs: product_revenue_all.json
 import requests, json, re, os
 from datetime import datetime
 from requests_oauthlib import OAuth1
+from pathlib import Path
+
+# Load .env file if present (local development)
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    for line in env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith('#') and '=' in line:
+            k, v = line.split('=', 1)
+            os.environ.setdefault(k.strip(), v.strip())
 
 NETSUITE_ACCOUNT_ID = os.environ.get("NETSUITE_ACCOUNT_ID", "8469825")
 CONSUMER_KEY = os.environ.get("NETSUITE_CONSUMER_KEY", "")
