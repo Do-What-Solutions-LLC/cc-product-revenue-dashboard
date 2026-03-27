@@ -589,10 +589,90 @@ function doLogin(){
   });
 }
 
+// Handle invite/recovery tokens from URL hash
+function handleTokenFlow(){
+  const hash=window.location.hash;
+  if(hash.includes('invite_token=')||hash.includes('recovery_token=')){
+    const isInvite=hash.includes('invite_token=');
+    const token=hash.replace(/^#/,'').split('=').slice(1).join('=').split('&')[0];
+    // Show password setup UI
+    const gate=document.getElementById('authGate');
+    const formCard=gate.querySelector('div > div:last-child'); // the login card
+    const title=isInvite?'Set Your Password':'Reset Your Password';
+    formCard.innerHTML=`
+      <div id="loginError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
+      <div style="text-align:center;color:white;font-size:16px;font-weight:600;margin-bottom:20px">${title}</div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:6px">NEW PASSWORD</label>
+        <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:6px">CONFIRM PASSWORD</label>
+        <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')doSetPassword()">
+      </div>
+      <button onclick="doSetPassword()" id="setupBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Set Password</button>
+    `;
+    gate.style.display='flex';
+    document.getElementById('appContent').style.display='none';
+    setTimeout(()=>document.getElementById('newPassword').focus(),100);
+    // Store token for use in doSetPassword
+    window._authToken=token;
+    window._authIsInvite=isInvite;
+    window.location.hash='';
+    return true;
+  }
+  // Handle confirmation token (email confirm after invite accept)
+  if(hash.includes('confirmation_token=')){
+    const token=hash.replace(/^#/,'').split('=').slice(1).join('=').split('&')[0];
+    fetch(IDENTITY_URL+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:token,type:'signup'})
+    }).then(r=>r.json()).then(()=>{
+      window.location.hash='';window.location.reload();
+    });
+    return true;
+  }
+  return false;
+}
+
+function doSetPassword(){
+  const pw=document.getElementById('newPassword').value;
+  const pw2=document.getElementById('confirmPassword').value;
+  const errEl=document.getElementById('loginError');
+  const btn=document.getElementById('setupBtn');
+  if(!pw||pw.length<6){errEl.textContent='Password must be at least 6 characters';errEl.style.display='block';return}
+  if(pw!==pw2){errEl.textContent='Passwords do not match';errEl.style.display='block';return}
+  btn.textContent='Setting up...';btn.disabled=true;errEl.style.display='none';
+  const endpoint=window._authIsInvite?'/verify':'/recover';
+  const body=window._authIsInvite?{token:window._authToken,type:'invite',password:pw}:{token:window._authToken,type:'recovery',password:pw};
+  // For invite: verify token first, then update password
+  fetch(IDENTITY_URL+'/verify',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:window._authToken,type:window._authIsInvite?'invite':'recovery'})
+  }).then(r=>{
+    if(!r.ok)throw new Error('Invalid or expired token');
+    return r.json();
+  }).then(data=>{
+    // Now update the password using the access token from verification
+    return fetch(IDENTITY_URL+'/user',{method:'PUT',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+data.access_token},
+      body:JSON.stringify({password:pw})
+    }).then(r=>{if(!r.ok)throw new Error('Failed to set password');return data});
+  }).then(data=>{
+    // Store the JWT and show the app
+    localStorage.setItem('nf_jwt',JSON.stringify(data));
+    document.getElementById('authGate').style.display='none';
+    document.getElementById('appContent').style.display='block';
+  }).catch(e=>{
+    errEl.textContent=e.message||'Failed to set password. The link may have expired — request a new invite.';
+    errEl.style.display='block';btn.textContent='Set Password';btn.disabled=false;
+  });
+}
+
 // Check for existing session
 (function(){
   const gate=document.getElementById('authGate');
   const app=document.getElementById('appContent');
+  // Handle invite/recovery tokens first
+  if(handleTokenFlow()) return;
   // Detect if running on Netlify (identity endpoint exists)
   fetch(IDENTITY_URL+'/settings').then(r=>{
     if(!r.ok)throw new Error('no identity');
