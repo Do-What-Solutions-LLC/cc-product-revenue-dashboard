@@ -114,7 +114,7 @@
     <img id="authLogo" style="height:64px;margin-bottom:12px" alt="Capacity Chemical">
     <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-top:4px">Product Revenue Dashboard</div>
   </div>
-  <div style="background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
+  <div id="loginCard" style="background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
     <div id="loginError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
     <div style="margin-bottom:16px">
       <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Email</label>
@@ -125,6 +125,19 @@
       <input id="loginPassword" type="password" placeholder="Enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button onclick="doLogin()" id="loginBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Log In</button>
+  </div>
+  <div id="setupCard" style="display:none;background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
+    <div id="setupError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
+    <div style="text-align:center;color:white;font-size:16px;font-weight:600;margin-bottom:24px" id="setupTitle">Set Your Password</div>
+    <div style="margin-bottom:16px">
+      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">New Password</label>
+      <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Confirm Password</label>
+      <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doSetPassword()">
+    </div>
+    <button onclick="doSetPassword()" id="setupBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Set Password</button>
   </div>
   <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:32px">Prepared by Do What Solutions LLC</p>
 </div>
@@ -595,27 +608,14 @@ function handleTokenFlow(){
   if(hash.includes('invite_token=')||hash.includes('recovery_token=')){
     const isInvite=hash.includes('invite_token=');
     const token=hash.replace(/^#/,'').split('=').slice(1).join('=').split('&')[0];
-    // Show password setup UI
+    // Show setup card, hide login card
+    document.getElementById('loginCard').style.display='none';
+    document.getElementById('setupCard').style.display='block';
+    document.getElementById('setupTitle').textContent=isInvite?'Set Your Password':'Reset Your Password';
     const gate=document.getElementById('authGate');
-    const formCard=gate.querySelector('div > div:last-child'); // the login card
-    const title=isInvite?'Set Your Password':'Reset Your Password';
-    formCard.innerHTML=`
-      <div id="loginError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
-      <div style="text-align:center;color:white;font-size:16px;font-weight:600;margin-bottom:20px">${title}</div>
-      <div style="margin-bottom:16px">
-        <label style="display:block;color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:6px">NEW PASSWORD</label>
-        <input id="newPassword" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box">
-      </div>
-      <div style="margin-bottom:20px">
-        <label style="display:block;color:rgba(255,255,255,.7);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:6px">CONFIRM PASSWORD</label>
-        <input id="confirmPassword" type="password" placeholder="Re-enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')doSetPassword()">
-      </div>
-      <button onclick="doSetPassword()" id="setupBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Set Password</button>
-    `;
     gate.style.display='flex';
     document.getElementById('appContent').style.display='none';
     setTimeout(()=>document.getElementById('newPassword').focus(),100);
-    // Store token for use in doSetPassword
     window._authToken=token;
     window._authIsInvite=isInvite;
     window.location.hash='';
@@ -637,7 +637,7 @@ function handleTokenFlow(){
 function doSetPassword(){
   const pw=document.getElementById('newPassword').value;
   const pw2=document.getElementById('confirmPassword').value;
-  const errEl=document.getElementById('loginError');
+  const errEl=document.getElementById('setupError');
   const btn=document.getElementById('setupBtn');
   if(!pw||pw.length<6){errEl.textContent='Password must be at least 6 characters';errEl.style.display='block';return}
   if(pw!==pw2){errEl.textContent='Passwords do not match';errEl.style.display='block';return}
