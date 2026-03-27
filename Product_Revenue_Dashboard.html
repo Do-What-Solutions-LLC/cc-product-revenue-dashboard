@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Capacity Chemical - Product Revenue Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--cc-blue:#0082CB;--cc-blue-dark:#006BA7;--cc-blue-light:#E8F4FB;--cc-orange:#F37021;--cc-orange-dark:#D45E18;--cc-gray:#E5E6E6;--cc-bg:#F5F7FA;--cc-text:#1F2937;--cc-text-light:#6B7280;--cc-radius:16px;--cc-shadow:0 4px 24px rgba(0,0,0,0.08);--cc-shadow-hover:0 8px 32px rgba(0,130,203,0.15)}
@@ -110,12 +109,25 @@
 </style>
 </head>
 <body>
-<div id="authGate" style="display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--cc-blue) 0%,var(--cc-blue-dark) 100%);flex-direction:column;gap:24px;font-family:'DM Sans',sans-serif">
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px">
-    <img id="authLogo" style="height:56px" alt="Capacity Chemical">
-    <div><div style="color:white;font-size:24px;font-weight:700;letter-spacing:-.5px">capacity chemical</div><div style="color:rgba(255,255,255,.6);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase">Product Revenue Dashboard</div></div>
+<div id="authGate" style="display:none;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--cc-blue) 0%,var(--cc-blue-dark) 100%);flex-direction:column;font-family:'DM Sans',sans-serif">
+  <div style="text-align:center;margin-bottom:36px">
+    <img id="authLogo" style="height:64px;margin-bottom:12px" alt="Capacity Chemical">
+    <div style="color:white;font-size:28px;font-weight:700;letter-spacing:-.5px">capacity chemical</div>
+    <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-top:4px">Product Revenue Dashboard</div>
   </div>
-  <p style="color:rgba(255,255,255,.4);font-size:11px">Prepared by Do What Solutions LLC</p>
+  <div style="background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:20px;padding:36px 40px;max-width:380px;width:90%;border:1px solid rgba(255,255,255,.1)">
+    <div id="loginError" style="display:none;background:rgba(255,82,82,.15);border:1px solid rgba(255,82,82,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:#ff8a80;font-size:13px;text-align:center"></div>
+    <div style="margin-bottom:16px">
+      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Email</label>
+      <input id="loginEmail" type="email" placeholder="you@company.com" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">Password</label>
+      <input id="loginPassword" type="password" placeholder="Enter password" style="width:100%;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06);color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='rgba(255,255,255,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button onclick="doLogin()" id="loginBtn" style="width:100%;padding:14px;background:white;color:var(--cc-blue);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.2)'">Log In</button>
+  </div>
+  <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:32px">Prepared by Do What Solutions LLC</p>
 </div>
 <div id="appContent" style="display:none">
 <div class="header">
@@ -553,21 +565,53 @@ function showHowToUse(){document.getElementById("howToUseOverlay").classList.add
 // Copy real logo to auth page
 (function(){const hdrLogo=document.querySelector('.header-logo');const authLogo=document.getElementById('authLogo');if(hdrLogo&&authLogo)authLogo.src=hdrLogo.src})();
 
-// Netlify Identity auth gate
-if(window.netlifyIdentity){
+// GoTrue API base (Netlify Identity)
+const IDENTITY_URL='/.netlify/identity';
+
+function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPassword').value;
+  const errEl=document.getElementById('loginError');
+  const btn=document.getElementById('loginBtn');
+  if(!email||!pass){errEl.textContent='Please enter email and password';errEl.style.display='block';return}
+  btn.textContent='Logging in...';btn.disabled=true;errEl.style.display='none';
+  fetch(IDENTITY_URL+'/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'grant_type=password&username='+encodeURIComponent(email)+'&password='+encodeURIComponent(pass)
+  }).then(r=>{
+    if(!r.ok)throw new Error('Invalid credentials');
+    return r.json();
+  }).then(data=>{
+    localStorage.setItem('nf_jwt',JSON.stringify(data));
+    document.getElementById('authGate').style.display='none';
+    document.getElementById('appContent').style.display='block';
+  }).catch(e=>{
+    errEl.textContent='Invalid email or password';errEl.style.display='block';
+    btn.textContent='Log In';btn.disabled=false;
+  });
+}
+
+// Check for existing session
+(function(){
   const gate=document.getElementById('authGate');
   const app=document.getElementById('appContent');
-  netlifyIdentity.on('init',user=>{
-    if(user){gate.style.display='none';app.style.display='block'}
-    else{gate.style.display='flex';app.style.display='none';netlifyIdentity.open('login')}
+  // Detect if running on Netlify (identity endpoint exists)
+  fetch(IDENTITY_URL+'/settings').then(r=>{
+    if(!r.ok)throw new Error('no identity');
+    const stored=localStorage.getItem('nf_jwt');
+    if(stored){
+      const tok=JSON.parse(stored);
+      // Check if token is still valid (not expired)
+      if(tok.access_token){
+        const payload=JSON.parse(atob(tok.access_token.split('.')[1]));
+        if(payload.exp*1000>Date.now()){gate.style.display='none';app.style.display='block';return}
+      }
+    }
+    gate.style.display='flex';app.style.display='none';
+    setTimeout(()=>document.getElementById('loginEmail').focus(),100);
+  }).catch(()=>{
+    // Not on Netlify (local dev) — show app directly
+    gate.style.display='none';app.style.display='block';
   });
-  netlifyIdentity.on('login',()=>{netlifyIdentity.close();gate.style.display='none';app.style.display='block';location.reload()});
-  netlifyIdentity.on('logout',()=>{gate.style.display='flex';app.style.display='none';netlifyIdentity.open('login')});
-  netlifyIdentity.on('close',()=>{if(!netlifyIdentity.currentUser())setTimeout(()=>netlifyIdentity.open('login'),300)});
-}else{
-  // No Netlify Identity (local dev) — show app directly
-  document.getElementById('authGate').style.display='none';
-  document.getElementById('appContent').style.display='block';
-}
+})();
 </script>
 </body></html>
