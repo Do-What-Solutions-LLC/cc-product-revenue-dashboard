@@ -117,10 +117,10 @@
   <div class="header-right"><div>Data: NetSuite Sales Orders</div><div id="lastUpdated"></div><div style="margin-top:4px;color:rgba(255,255,255,.5);font-size:10px">Prepared by Do What Solutions LLC</div></div>
 </div>
 <div class="controls-bar">
-  <div class="control-group"><span class="control-label">From</span><input type="date" id="dateFrom" class="date-input" value="2025-03-13" onchange="refreshDashboard()"></div>
-  <div class="control-group"><span class="control-label">To</span><input type="date" id="dateTo" class="date-input" value="2026-03-13" onchange="refreshDashboard()"></div>
+  <div class="control-group"><span class="control-label">From</span><input type="date" id="dateFrom" class="date-input" onchange="refreshDashboard()"></div>
+  <div class="control-group"><span class="control-label">To</span><input type="date" id="dateTo" class="date-input" onchange="refreshDashboard()"></div>
   <div class="preset-btns">
-    <button class="preset-btn" onclick="setPreset('ytd',this)">YTD 2026</button>
+    <button class="preset-btn" id="ytdBtn" onclick="setPreset('ytd',this)">YTD</button>
     <button class="preset-btn active" onclick="setPreset('1y',this)">Last 12 Months</button>
     <button class="preset-btn" onclick="setPreset('2025',this)">Full Year 2025</button>
     <button class="preset-btn" onclick="setPreset('6m',this)">Last 6 Months</button>
@@ -156,7 +156,7 @@
     </div>
   </div>
 </div>
-<div class="footer"><div class="footer-text">Data sourced from NetSuite &bull; Sales Order transactions</div><div class="footer-brand">Prepared by Do What Solutions LLC</div><div class="footer-text"><span id="footerDate"></span> &bull; v1.4.0</div></div>
+<div class="footer"><div class="footer-text">Data sourced from NetSuite &bull; Sales Order transactions</div><div class="footer-brand">Prepared by Do What Solutions LLC</div><div class="footer-text"><span id="footerDate"></span> &bull; v1.5.0</div></div>
 
 <script>
 let RD=[];
@@ -165,7 +165,25 @@ async function loadData(){
     document.getElementById("statsBar").innerHTML='<div class="stat-card" style="grid-column:1/-1;text-align:center"><div class="stat-value" style="font-size:16px">Loading data...</div></div>';
     const resp=await fetch("product_revenue_all.json");
     if(!resp.ok)throw new Error("HTTP "+resp.status);
-    RD=await resp.json();
+    const json=await resp.json();
+    // Support both wrapped {refreshed, records} and plain array format
+    if(Array.isArray(json)){RD=json}else{RD=json.records||[];window._dataRefreshed=json.refreshed||null}
+    // Set dynamic dates based on today
+    const now=new Date();const todayStr=now.toISOString().slice(0,10);
+    const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');const d=String(now.getDate()).padStart(2,'0');
+    const oneYearAgo=new Date(now);oneYearAgo.setFullYear(y-1);
+    document.getElementById('dateTo').value=todayStr;
+    document.getElementById('dateFrom').value=oneYearAgo.toISOString().slice(0,10);
+    document.getElementById('ytdBtn').textContent='YTD '+y;
+    // Show refresh date
+    if(window._dataRefreshed){
+      const rd=new Date(window._dataRefreshed);
+      document.getElementById('lastUpdated').textContent='Updated: '+rd.toLocaleDateString();
+      document.getElementById('footerDate').textContent=rd.toLocaleDateString();
+    }else{
+      document.getElementById('lastUpdated').textContent='Updated: '+now.toLocaleDateString();
+      document.getElementById('footerDate').textContent=now.toLocaleDateString();
+    }
     refreshDashboard();
   }catch(e){
     console.error("Data load error:",e);
@@ -176,7 +194,7 @@ const CC=['#0082CB','#F37021','#34A853','#EA4335','#9B59B6','#1ABC9C','#F39C12',
 let cI={},tCI=null,statCI=null,cSort={col:'rev',dir:'desc'},cMD=null,sTrend=false,FC=[],FD=[],currentMode='product';
 
 function gFD(){const f=document.getElementById('dateFrom').value,t=document.getElementById('dateTo').value;return RD.filter(r=>r.dt>=f&&r.dt<=t)}
-function setPreset(p,el){document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');const today='2026-03-13';let f,t=today;switch(p){case'ytd':f='2026-01-01';break;case'1y':f='2025-03-13';break;case'2025':f='2025-01-01';t='2025-12-31';break;case'6m':f='2025-09-13';break;case'all':f='2024-01-01';break}document.getElementById('dateFrom').value=f;document.getElementById('dateTo').value=t;refreshDashboard()}
+function setPreset(p,el){document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');const now=new Date();const today=now.toISOString().slice(0,10);const y=now.getFullYear();let f,t=today;switch(p){case'ytd':f=y+'-01-01';break;case'1y':{const d=new Date(now);d.setFullYear(y-1);f=d.toISOString().slice(0,10);break}case'2025':f='2025-01-01';t='2025-12-31';break;case'6m':{const d=new Date(now);d.setMonth(d.getMonth()-6);f=d.toISOString().slice(0,10);break}case'all':f='2024-01-01';break}document.getElementById('dateFrom').value=f;document.getElementById('dateTo').value=t;refreshDashboard()}
 
 function aggByF(filtered){
   const m={};
@@ -464,8 +482,6 @@ function refreshDashboard(){
   }
   renderCharts(FC);
 }
-document.getElementById('lastUpdated').textContent='Updated: '+new Date().toLocaleDateString();
-document.getElementById('footerDate').textContent=new Date().toLocaleDateString();
 loadData();
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.getElementById('statModalOverlay').classList.remove('active');if(statCI)statCI.destroy()}});
 </script>

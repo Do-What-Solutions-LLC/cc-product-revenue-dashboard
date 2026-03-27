@@ -127,8 +127,12 @@ def main():
     print(f"  Formulas: {len(set(r['mid'] for r in compact))}")
     print(f"  Revenue: ${sum(r['rev'] for r in compact):,.0f}")
     print("\n[3/3] Saving...")
+    output_data = {
+        'refreshed': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'records': compact
+    }
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'product_revenue_all.json')
-    with open(out,'w') as f: json.dump(compact, f, separators=(',',':'))
+    with open(out,'w') as f: json.dump(output_data, f, separators=(',',':'))
     print(f"  Saved: {os.path.getsize(out):,} bytes")
     print("\n" + "="*60 + "\nDONE!\n" + "="*60)
 
