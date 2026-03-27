@@ -427,9 +427,7 @@ function renderDrillTable(){
     let show;if(!cf)show=Object.keys(f.customers);else if(cf.startsWith('Other ('))show=Object.keys(f.customers).filter(n=>!tN.includes(n));else show=[cf];
     show.forEach(cn=>{const cd=f.customers[cn];if(!cd)return;Object.entries(cd.items).forEach(([in_,id])=>{
       const ppl=id.lbs>0?id.revenue/id.lbs:0;const ppu=id.qty>0?id.revenue/id.qty:0;
-      rows.push({cust:cn,item:in_,ps:id.ps||'Other',ppu,ppl,lbs:id.lbs,qty:id.qty,rev:id.revenue})})});
-    const filteredTotal=rows.reduce((s,r)=>s+r.rev,0)||1;
-    rows.forEach(r=>r.pct=(r.rev/filteredTotal)*100);
+      rows.push({cust:cn,item:in_,ps:id.ps||'Other',ppu,ppl,lbs:id.lbs,qty:id.qty,rev:id.revenue,pct:(id.revenue/f.total_revenue)*100})})});
     const d=cSort.dir==='desc'?-1:1;rows.sort((a,b)=>{const va=a[cSort.col],vb=b[cSort.col];return typeof va==='string'?d*va.localeCompare(vb):d*(va-vb)});
     const mP=Math.max(...rows.map(r=>r.pct),1);
     body.innerHTML=rows.length?rows.map(r=>`<tr><td>${r.cust}</td><td><strong>${r.item}</strong></td><td><span class="pack-badge">${r.ps}</span></td><td class="num">${r.ppu>0?'$'+r.ppu.toFixed(2):'-'}</td><td class="num">${r.ppl>0?'$'+r.ppl.toFixed(2):'-'}</td><td class="num">${fN(r.lbs)}</td><td class="num">${fN(r.qty)}</td><td class="num"><strong>$${r.rev.toLocaleString('en-US',{maximumFractionDigits:0})}</strong></td><td class="num"><span class="pct-bar" style="width:${(r.pct/mP)*40}px"></span>${fP(r.pct)}</td></tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:40px;color:#999">No data</td></tr>';
@@ -440,9 +438,7 @@ function renderDrillTable(){
     let showProds;if(!cf)showProds=Object.values(f.products);else if(cf.startsWith('Other ('))showProds=Object.entries(f.products).filter(([mid,p])=>!pN.includes(p.formula_code)).map(e=>e[1]);else showProds=Object.values(f.products).filter(p=>p.formula_code===cf);
     showProds.forEach(p=>{Object.entries(p.items).forEach(([in_,id])=>{
       const ppl=id.lbs>0?id.revenue/id.lbs:0;const ppu=id.qty>0?id.revenue/id.qty:0;
-      rows.push({prod:p.formula_code,fname:p.formula_name,item:in_,ps:id.ps||'Other',ppu,ppl,lbs:id.lbs,qty:id.qty,rev:id.revenue})})});
-    const filteredTotal=rows.reduce((s,r)=>s+r.rev,0)||1;
-    rows.forEach(r=>r.pct=(r.rev/filteredTotal)*100);
+      rows.push({prod:p.formula_code,fname:p.formula_name,item:in_,ps:id.ps||'Other',ppu,ppl,lbs:id.lbs,qty:id.qty,rev:id.revenue,pct:(id.revenue/f.total_revenue)*100})})});
     const d=cSort.dir==='desc'?-1:1;rows.sort((a,b)=>{const va=a[cSort.col],vb=b[cSort.col];return typeof va==='string'?d*va.localeCompare(vb):d*(va-vb)});
     const mP=Math.max(...rows.map(r=>r.pct),1);
     body.innerHTML=rows.length?rows.map(r=>`<tr><td><strong>${r.prod}</strong></td><td>${r.fname}</td><td>${r.item}</td><td><span class="pack-badge">${r.ps}</span></td><td class="num">${r.ppu>0?'$'+r.ppu.toFixed(2):'-'}</td><td class="num">${r.ppl>0?'$'+r.ppl.toFixed(2):'-'}</td><td class="num">${fN(r.lbs)}</td><td class="num">${fN(r.qty)}</td><td class="num"><strong>$${r.rev.toLocaleString('en-US',{maximumFractionDigits:0})}</strong></td><td class="num"><span class="pct-bar" style="width:${(r.pct/mP)*40}px"></span>${fP(r.pct)}</td></tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:40px;color:#999">No data</td></tr>';
@@ -543,18 +539,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();docume
   <div class="stat-modal" style="max-width:650px">
     <div class="stat-modal-header"><h3>How to Use This Dashboard</h3><button class="modal-close" onclick="document.getElementById('howToUseOverlay').classList.remove('active')">&times;</button></div>
     <div style="padding:24px 28px;overflow-y:auto;max-height:60vh;font-size:14px;line-height:1.7;color:var(--cc-text)">
+      <div style="margin-bottom:20px;padding:16px;background:var(--cc-bg);border-radius:12px;text-align:center">
+        <strong style="color:var(--cc-text)">Video Walkthrough</strong>
+        <div style="margin-top:12px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
+          <iframe src="https://www.loom.com/embed/0c6b9d2b9cb84ef3930a57b0b3b35971" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
+        </div>
+      </div>
       <p style="margin-bottom:16px"><strong>Search Products</strong> — Use the search bar to find any product by formula code (e.g. CC2015) or name (e.g. Hydrogen Peroxide). The dashboard filters to show only matching products.</p>
       <p style="margin-bottom:16px"><strong>Date Filtering</strong> — Use the preset buttons (YTD, Last 12 Months, etc.) or set custom From/To dates. All charts and stats update automatically.</p>
       <p style="margin-bottom:16px"><strong>Stat Cards</strong> — Click any stat card (Total Revenue, Total Lbs, etc.) to see a detailed trend or breakdown chart.</p>
       <p style="margin-bottom:16px"><strong>Product Cards</strong> — Each card shows a donut chart of customer revenue split. Click any slice to drill down into that customer's line items, quantities, and pricing.</p>
       <p style="margin-bottom:16px"><strong>Customer Detail</strong> — In the detail modal, use the customer dropdown or the "All Customers" button to switch views. Toggle "Trend" to see monthly revenue over time. Click column headers to sort.</p>
       <p style="margin-bottom:16px"><strong>Top 20 vs Search</strong> — By default, the dashboard shows the top 20 master formulas. When you search, it shows all matching products and the stats update to reflect only those results.</p>
-      <div style="margin-top:20px;padding:16px;background:var(--cc-bg);border-radius:12px;text-align:center">
-        <strong style="color:var(--cc-text)">Video Walkthrough</strong><br>
-        <div style="margin-top:12px;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
-          <iframe src="https://www.loom.com/embed/0c6b9d2b9cb84ef3930a57b0b3b35971" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
-        </div>
-      </div>
     </div>
   </div>
 </div>
