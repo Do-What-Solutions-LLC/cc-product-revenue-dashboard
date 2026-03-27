@@ -413,7 +413,7 @@ function sD(col){if(cSort.col===col)cSort.dir=cSort.dir==='desc'?'asc':'desc';el
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';if(tCI){tCI.destroy();tCI=null}}
 
 let searchTerm='';
-const TOP20=[1801,1933,1850,1816,1813,2139,2817,1852,3026,1997,8942,3033,2024,2899,2378,1822,2302,2282,3018,8574];
+const TOP20=['1801','1933','1850','1816','1813','2139','2817','1852','3026','1997','8942','3033','2024','2899','2378','1822','2302','2282','3018','8574'];
 
 function onSearch(){
   const v=document.getElementById('searchInput').value.trim();
